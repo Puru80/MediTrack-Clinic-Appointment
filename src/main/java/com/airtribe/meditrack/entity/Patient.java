@@ -52,7 +52,10 @@ public class Patient extends Person implements Searchable, Cloneable {
         return getName().toLowerCase().contains(lowerQuery) ||
                getEmail().toLowerCase().contains(lowerQuery) ||
                String.valueOf(getId()).equals(query.trim()) ||
-               String.valueOf(getAge()).equals(query.trim());
+               String.valueOf(getAge()).equals(query.trim()) ||
+               (medicalHistory != null && medicalHistory.toLowerCase().contains(lowerQuery)) ||
+               (bloodGroup != null && bloodGroup.toLowerCase().contains(lowerQuery)) ||
+               (address != null && address.toLowerCase().contains(lowerQuery));
     }
 
     @Override
@@ -67,8 +70,8 @@ public class Patient extends Person implements Searchable, Cloneable {
 
     @Override
     public String toString() {
-        return String.format("Patient{id=%d, name='%s', age=%d, email='%s', bloodGroup='%s', address='%s'}", 
-                getId(), getName(), getAge(), getEmail(), bloodGroup, address);
+        return String.format("Patient{id=%d, name='%s', age=%d, email='%s', bloodGroup='%s', medicalHistory='%s', address='%s'}", 
+                getId(), getName(), getAge(), getEmail(), bloodGroup, medicalHistory, address);
     }
 }
 
