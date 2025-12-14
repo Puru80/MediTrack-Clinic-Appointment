@@ -13,6 +13,7 @@ import com.airtribe.meditrack.entity.Bill;
 import com.airtribe.meditrack.entity.BillSummary;
 import com.airtribe.meditrack.entity.Doctor;
 import com.airtribe.meditrack.entity.Patient;
+import com.airtribe.meditrack.entity.Specialization;
 import com.airtribe.meditrack.exceptions.AppointmentNotFoundException;
 import com.airtribe.meditrack.exceptions.InvalidDataException;
 import com.airtribe.meditrack.service.AppointmentService;
@@ -39,12 +40,8 @@ public class Main {
                 int choice = getIntInput("Enter your choice: ", scanner);
                 
                 switch (choice) {
-                    case 1 -> {
-                        // Patient Management (handled by Role 1)
-                    }
-                    case 2 -> {
-                        // Doctor Management (handled by Role 1)
-                    }
+                    case 1 -> handlePatientMenu(scanner);
+                    case 2 -> handleDoctorMenu(scanner);
                     case 3 -> handleAppointmentMenu(scanner);
                     case 4 -> handleBillingMenu(scanner);
                     case 5 -> {
@@ -67,6 +64,287 @@ public class Main {
         System.out.println("4. Billing Management");
         System.out.println("5. Exit");
         System.out.println("===========================================");
+    }
+
+    // ======================== PATIENT MANAGEMENT ========================
+
+    private static void handlePatientMenu(Scanner scanner) {
+        boolean back = false;
+        while (!back) {
+            displayPatientMenu();
+            int choice = getIntInput("Enter your choice: ", scanner);
+
+            switch (choice) {
+                case 1 -> createPatient(scanner);
+                case 2 -> viewAllPatients();
+                case 3 -> viewPatientById(scanner);
+                case 4 -> updatePatient(scanner);
+                case 5 -> deletePatient(scanner);
+                case 0 -> back = true;
+                default -> System.out.println("Invalid choice. Please try again.");
+            }
+        }
+    }
+
+    private static void displayPatientMenu() {
+        System.out.println("\n===========================================");
+        System.out.println("          PATIENT MANAGEMENT");
+        System.out.println("===========================================");
+        System.out.println("1. Add New Patient");
+        System.out.println("2. View All Patients");
+        System.out.println("3. View Patient by ID");
+        System.out.println("4. Update Patient Information");
+        System.out.println("5. Delete Patient");
+        System.out.println("0. Back to Main Menu");
+        System.out.println("===========================================");
+    }
+
+    private static void createPatient(Scanner scanner) {
+        System.out.println("\n--- Add New Patient ---");
+        try {
+            System.out.print("Enter Name: ");
+            String name = scanner.nextLine();
+            int age = getIntInput("Enter Age: ", scanner);
+            System.out.print("Enter Email: ");
+            String email = scanner.nextLine();
+            System.out.print("Enter Phone Number: ");
+            String phoneNumber = scanner.nextLine();
+            System.out.print("Enter Medical History: ");
+            String medicalHistory = scanner.nextLine();
+            System.out.print("Enter Blood Group: ");
+            String bloodGroup = scanner.nextLine();
+            System.out.print("Enter Address: ");
+            String address = scanner.nextLine();
+
+            Patient patient = patientService.createPatient(name, age, email, phoneNumber, medicalHistory, bloodGroup, address);
+            System.out.println("\n✓ Patient added successfully!");
+            System.out.println(patient);
+        } catch (InvalidDataException e) {
+            System.out.println("Error: " + e.getMessage());
+        }
+    }
+
+    private static void viewAllPatients() {
+        System.out.println("\n--- All Patients ---");
+        List<Patient> patients = patientService.getAllPatients();
+        if (patients.isEmpty()) {
+            System.out.println("No patients found.");
+            return;
+        }
+        patients.forEach(System.out::println);
+        System.out.println("\nTotal Patients: " + patients.size());
+    }
+
+    private static void viewPatientById(Scanner scanner) {
+        Long id = getLongInput("Enter Patient ID: ", scanner);
+        Optional<Patient> patient = patientService.getPatientById(id);
+        if (patient.isPresent()) {
+            System.out.println("\n" + patient.get());
+        } else {
+            System.out.println("Patient not found.");
+        }
+    }
+
+    private static void updatePatient(Scanner scanner) {
+        Long id = getLongInput("Enter Patient ID to update: ", scanner);
+        Optional<Patient> optionalPatient = patientService.getPatientById(id);
+
+        if (optionalPatient.isEmpty()) {
+            System.out.println("Patient not found.");
+            return;
+        }
+
+        Patient patient = optionalPatient.get();
+        System.out.println("Enter new details (leave blank to keep current value):");
+
+        try {
+            System.out.print("Enter Name (" + patient.getName() + "): ");
+            String name = scanner.nextLine();
+            if (!name.isBlank()) patient.setName(name);
+
+            System.out.print("Enter Age (" + patient.getAge() + "): ");
+            String ageStr = scanner.nextLine();
+            if (!ageStr.isBlank()) patient.setAge(Integer.parseInt(ageStr));
+
+            System.out.print("Enter Email (" + patient.getEmail() + "): ");
+            String email = scanner.nextLine();
+            if (!email.isBlank()) patient.setEmail(email);
+
+            System.out.print("Enter Phone Number (" + patient.getPhoneNumber() + "): ");
+            String phoneNumber = scanner.nextLine();
+            if (!phoneNumber.isBlank()) patient.setPhoneNumber(phoneNumber);
+
+            System.out.print("Enter Medical History (" + patient.getMedicalHistory() + "): ");
+            String medicalHistory = scanner.nextLine();
+            if (!medicalHistory.isBlank()) patient.setMedicalHistory(medicalHistory);
+
+            System.out.print("Enter Blood Group (" + patient.getBloodGroup() + "): ");
+            String bloodGroup = scanner.nextLine();
+            if (!bloodGroup.isBlank()) patient.setBloodGroup(bloodGroup);
+
+            System.out.print("Enter Address (" + patient.getAddress() + "): ");
+            String address = scanner.nextLine();
+            if (!address.isBlank()) patient.setAddress(address);
+
+            patientService.updatePatient(patient);
+            System.out.println("\n✓ Patient updated successfully!");
+        } catch (InvalidDataException | NumberFormatException e) {
+            System.out.println("Error: " + e.getMessage());
+        }
+    }
+
+    private static void deletePatient(Scanner scanner) {
+        Long id = getLongInput("Enter Patient ID to delete: ", scanner);
+        try {
+            patientService.deletePatient(id);
+            System.out.println("✓ Patient deleted successfully!");
+        } catch (InvalidDataException e) {
+            System.out.println("Error: " + e.getMessage());
+        }
+    }
+
+    // ======================== DOCTOR MANAGEMENT ========================
+
+    private static void handleDoctorMenu(Scanner scanner) {
+        boolean back = false;
+        while (!back) {
+            displayDoctorMenu();
+            int choice = getIntInput("Enter your choice: ", scanner);
+
+            switch (choice) {
+                case 1 -> createDoctor(scanner);
+                case 2 -> viewAllDoctors();
+                case 3 -> viewDoctorById(scanner);
+                case 4 -> updateDoctor(scanner);
+                case 5 -> deleteDoctor(scanner);
+                case 0 -> back = true;
+                default -> System.out.println("Invalid choice. Please try again.");
+            }
+        }
+    }
+
+    private static void displayDoctorMenu() {
+        System.out.println("\n===========================================");
+        System.out.println("           DOCTOR MANAGEMENT");
+        System.out.println("===========================================");
+        System.out.println("1. Add New Doctor");
+        System.out.println("2. View All Doctors");
+        System.out.println("3. View Doctor by ID");
+        System.out.println("4. Update Doctor Information");
+        System.out.println("5. Delete Doctor");
+        System.out.println("0. Back to Main Menu");
+        System.out.println("===========================================");
+    }
+
+    private static void createDoctor(Scanner scanner) {
+        System.out.println("\n--- Add New Doctor ---");
+        try {
+            System.out.print("Enter Name: ");
+            String name = scanner.nextLine();
+            int age = getIntInput("Enter Age: ", scanner);
+            System.out.print("Enter Email: ");
+            String email = scanner.nextLine();
+            System.out.print("Enter Phone Number: ");
+            String phoneNumber = scanner.nextLine();
+
+            System.out.println("Available Specializations:");
+            for (Specialization spec : Specialization.values()) {
+                System.out.println("- " + spec.getDisplayName());
+            }
+            System.out.print("Enter Specialization: ");
+            String specStr = scanner.nextLine().toUpperCase().replace(" ", "_");
+            Specialization specialization = Specialization.valueOf(specStr);
+
+            double consultationFee = getDoubleInput("Enter Consultation Fee: ", scanner);
+            int yearsOfExperience = getIntInput("Enter Years of Experience: ", scanner);
+
+            Doctor doctor = doctorService.createDoctor(name, age, email, phoneNumber, specialization, consultationFee, yearsOfExperience);
+            System.out.println("\n✓ Doctor added successfully!");
+            System.out.println(doctor);
+        } catch (InvalidDataException | IllegalArgumentException e) {
+            System.out.println("Error: " + e.getMessage());
+        }
+    }
+
+    private static void viewAllDoctors() {
+        System.out.println("\n--- All Doctors ---");
+        List<Doctor> doctors = doctorService.getAllDoctors();
+        if (doctors.isEmpty()) {
+            System.out.println("No doctors found.");
+            return;
+        }
+        doctors.forEach(System.out::println);
+        System.out.println("\nTotal Doctors: " + doctors.size());
+    }
+
+    private static void viewDoctorById(Scanner scanner) {
+        Long id = getLongInput("Enter Doctor ID: ", scanner);
+        Optional<Doctor> doctor = doctorService.getDoctorById(id);
+        if (doctor.isPresent()) {
+            System.out.println("\n" + doctor.get());
+        } else {
+            System.out.println("Doctor not found.");
+        }
+    }
+
+    private static void updateDoctor(Scanner scanner) {
+        Long id = getLongInput("Enter Doctor ID to update: ", scanner);
+        Optional<Doctor> optionalDoctor = doctorService.getDoctorById(id);
+
+        if (optionalDoctor.isEmpty()) {
+            System.out.println("Doctor not found.");
+            return;
+        }
+
+        Doctor doctor = optionalDoctor.get();
+        System.out.println("Enter new details (leave blank to keep current value):");
+
+        try {
+            System.out.print("Enter Name (" + doctor.getName() + "): ");
+            String name = scanner.nextLine();
+            if (!name.isBlank()) doctor.setName(name);
+
+            System.out.print("Enter Age (" + doctor.getAge() + "): ");
+            String ageStr = scanner.nextLine();
+            if (!ageStr.isBlank()) doctor.setAge(Integer.parseInt(ageStr));
+
+            System.out.print("Enter Email (" + doctor.getEmail() + "): ");
+            String email = scanner.nextLine();
+            if (!email.isBlank()) doctor.setEmail(email);
+
+            System.out.print("Enter Phone Number (" + doctor.getPhoneNumber() + "): ");
+            String phoneNumber = scanner.nextLine();
+            if (!phoneNumber.isBlank()) doctor.setPhoneNumber(phoneNumber);
+
+            System.out.print("Enter Specialization (" + doctor.getSpecialization().getDisplayName() + "): ");
+            String specStr = scanner.nextLine();
+            if (!specStr.isBlank()) {
+                doctor.setSpecialization(Specialization.valueOf(specStr.toUpperCase().replace(" ", "_")));
+            }
+
+            System.out.print("Enter Consultation Fee (" + doctor.getConsultationFee() + "): ");
+            String feeStr = scanner.nextLine();
+            if (!feeStr.isBlank()) doctor.setConsultationFee(Double.parseDouble(feeStr));
+
+            System.out.print("Enter Years of Experience (" + doctor.getYearsOfExperience() + "): ");
+            String expStr = scanner.nextLine();
+            if (!expStr.isBlank()) doctor.setYearsOfExperience(Integer.parseInt(expStr));
+
+            doctorService.updateDoctor(doctor);
+            System.out.println("\n✓ Doctor updated successfully!");
+        } catch (InvalidDataException | IllegalArgumentException | NumberFormatException e) {
+            System.out.println("Error: " + e.getMessage());
+        }
+    }
+
+    private static void deleteDoctor(Scanner scanner) {
+        Long id = getLongInput("Enter Doctor ID to delete: ", scanner);
+        try {
+            doctorService.deleteDoctor(id);
+            System.out.println("✓ Doctor deleted successfully!");
+        } catch (InvalidDataException e) {
+            System.out.println("Error: " + e.getMessage());
+        }
     }
 
     // ======================== APPOINTMENT MANAGEMENT ========================
