@@ -332,7 +332,7 @@ public class Main {
 
             doctorService.updateDoctor(doctor);
             System.out.println("\n✓ Doctor updated successfully!");
-        } catch (InvalidDataException | IllegalArgumentException | NumberFormatException e) {
+        } catch (InvalidDataException | IllegalArgumentException e) {
             System.out.println("Error: " + e.getMessage());
         }
     }

@@ -4,8 +4,18 @@ MediTrack is a console-based application designed to manage patient, doctor, app
 
 ## Features
 
-*   **Patient Management**: (Placeholder - Not fully implemented in `Main.java` but services exist)
-*   **Doctor Management**: (Placeholder - Not fully implemented in `Main.java` but services exist)
+*   **Patient Management**:
+    *   Add new patients.
+    *   View all patients.
+    *   View patient by ID.
+    *   Update patient information.
+    *   Delete patients.
+*   **Doctor Management**:
+    *   Add new doctors.
+    *   View all doctors.
+    *   View doctor by ID.
+    *   Update doctor information.
+    *   Delete doctors.
 *   **Appointment Management**:
     *   Create, view, confirm, cancel, reschedule, and complete appointments.
     *   View appointments by ID, patient, doctor, and status.
@@ -46,8 +56,7 @@ MediTrack is a console-based application designed to manage patient, doctor, app
     │   │               ├── interfaces/           // Interface definitions (Payable, Searchable)
     │   │               ├── service/              // Business logic services (AppointmentService, BillService, etc.)
     │   │               └── util/                 // Utility classes (DataStore, IdGenerator, Validator)
-    └── test/
-        └── java/
+                        └── test/                 // Manual test runner and test cases
 ```
 
 ## Setup and Installation
@@ -75,6 +84,12 @@ This will start the console application, presenting you with the main menu to in
 ## Usage
 
 Follow the on-screen menu prompts to navigate through Patient, Doctor, Appointment, and Billing management options.
+
+To manually test functionalities, you can run the `TestRunner` class:
+
+```bash
+./gradlew run --args="com.airtribe.meditrack.test.TestRunner"
+```
 
 ## Testing
 
